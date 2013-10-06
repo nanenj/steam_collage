@@ -1,0 +1,27 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    httparty (0.11.0)
+      multi_json (~> 1.0)
+      multi_xml (>= 0.5.2)
+    json (1.8.0)
+    multi_json (1.8.0)
+    multi_xml (0.5.5)
+    rdoc (4.0.1)
+      json (~> 1.4)
+    rio (0.5.1)
+      rdoc
+      test-unit
+    rmagick (2.13.2)
+    test-unit (2.5.5)
+    trollop (2.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  httparty
+  json
+  rio
+  rmagick
+  trollop

@@ -16,6 +16,8 @@ opts = Trollop::options do
   opt :outfile, "Output image file", :type => :string
 end
 
+
+opts[:api_key] ||= ENV['STEAM_WEB_API']
 opts[:download] = !opts[:no_download]
 opts[:outfile] ||= "#{opts[:id]}.jpg"
 
@@ -34,29 +36,30 @@ end
 
 gamehash = JSON.parse(json_games)
 
-gamehash.each_slice(opts[:width]) do |batch|
-  batch.each do |item|
-    puts "<img src='#{item['logo']}'>"
-  end
-  puts "<br />"
-end
-
 image = Magick::ImageList.new
+images_skipped, images_cached, images_downloaded = [0, 0, 0]
 gamehash.each do |game|
     if opts[:download]
       if File.exists?("images/#{File.basename(game["logo"])}")
         puts " -- [S] #{game["name"]} - #{File.basename(game["logo"])} exists, skipping."
+	images_cached = images_cached + 1
       else
         puts " -- [D] #{game["name"]} - #{File.basename(game["logo"])}"
-        rio("images/#{File.basename(game["logo"])}") < rio(game["logo"]) unless opts[:no_download]
+	if opts[:download]
+          if rio("images/#{File.basename(game["logo"])}") < rio(game["logo"])
+            images_downloaded = images_downloaded + 1
+          end
+        end
       end
     else
       puts "-- [S] #{game["name"]} - #{File.basename(game["logo"])} --no-download"
+      images_skipped = images_skipped + 1
     end
-    
-   image.read("images/#{File.basename(game['logo'])}")
+    if opts[:download]
+      image.read("images/#{File.basename(game['logo'])}")
+    end
 end
-
+puts "Operation complete: #{images_cached} cached, #{images_downloaded} downloaded, #{images_skipped} skipped"
 rows = gamehash.count / opts[:width]
 rows = rows.to_i
 rows = rows + 1
